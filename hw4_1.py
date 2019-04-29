@@ -39,6 +39,13 @@ class LogisticRegression:
             self._coef = self._coef + step
             converge = (np.absolute(step) < 0.0001).all()
 
+    def predict(self, x):
+        """Predict target using learnt coefficient."""
+        x = self._preprocess(x)
+        y = 1 / (1 + np.exp(-np.dot(x, self._coef)))
+        y = (y > 0.5).astype(int)
+        return y
+
 
 def generate_data(n, mean_x, var_x, mean_y, var_y):
     """Generate n (x, y) data points with corresponding mean and variance."""
@@ -70,6 +77,7 @@ def main():
     # Train model
     gradient_lg = LogisticRegression(method='gradient')
     gradient_lg.fit(x, y)
+    target = gradient_lg.predict(x)
 
 
 if __name__ == '__main__':
