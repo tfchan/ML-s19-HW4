@@ -40,11 +40,16 @@ class LogisticRegression:
             converge = (np.absolute(step) < 0.0001).all()
 
     def predict(self, x):
-        """Predict target using learnt coefficient."""
+        """Predict target using learnt coefficients."""
         x = self._preprocess(x)
         y = 1 / (1 + np.exp(-np.dot(x, self._coef)))
         y = (y > 0.5).astype(int)
         return y
+
+    @property
+    def coef(self):
+        """Getter of model coefficients."""
+        return self._coef
 
 
 def generate_data(n, mean_x, var_x, mean_y, var_y):
@@ -52,6 +57,15 @@ def generate_data(n, mean_x, var_x, mean_y, var_y):
     x = hw3_1a.normal(mean_x, var_x, n)
     y = hw3_1a.normal(mean_y, var_y, n)
     return np.vstack((x, y)).T
+
+
+def perform_lg(methods, x, y):
+    """Perform logistic regression with different methods."""
+    for method_name, method in methods.items():
+        method.fit(x, y)
+        prediction = method.predict(x)
+        print(f'{method_name}:\n')
+        print(f'w:\n{method.coef}')
 
 
 def main():
@@ -75,9 +89,8 @@ def main():
     y = np.concatenate((y1, y2))
 
     # Train model
-    gradient_lg = LogisticRegression(method='gradient')
-    gradient_lg.fit(x, y)
-    target = gradient_lg.predict(x)
+    methods = {'Gradient descent': LogisticRegression(method='gradient')}
+    perform_lg(methods, x, y)
 
 
 if __name__ == '__main__':
