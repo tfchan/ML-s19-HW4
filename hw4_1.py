@@ -60,6 +60,15 @@ def generate_data(n, mean_x, var_x, mean_y, var_y):
     return np.vstack((x, y)).T
 
 
+def calc_confusion_mat(target, prediction):
+    """Calculate confusion matrix, return tp, tn, fp, fn."""
+    tp = ((target == 1) & (target == prediction)).sum()
+    tn = ((target == 0) & (target == prediction)).sum()
+    fp = ((target == 0) & (target != prediction)).sum()
+    fn = ((target == 1) & (target != prediction)).sum()
+    return tp, tn, fp, fn
+
+
 def plot(n_plot, title, position, x, y):
     """Plot subplot with specific title and position."""
     ax = plt.subplot(1, n_plot, position)
@@ -79,7 +88,17 @@ def perform_lg(methods, x, y):
         method.fit(x, y)
         prediction = method.predict(x)
         print(f'{method_name}:\n')
-        print(f'w:\n{method.coef}')
+        print(f'w:\n{method.coef}\n')
+        tp, tn, fp, fn = calc_confusion_mat(y, prediction)
+        print('Confusion matrix:')
+        print('\t\tPredict cluster 1\tPredict cluster 2')
+        print(f'Is cluster 1\t\t{tn}\t\t\t{fp}')
+        print(f'Is cluster 1\t\t{fn}\t\t\t{tp}\n')
+        print(f'Sensitivity (Successfully predict cluster 1):',
+              tp / (tp + fn))
+        print(f'Specificity (Successfully predict cluster 2):',
+              tn / (tn + fp))
+        print('\n------------------------------------------------------------')
         plot(n_plot, method_name, method_count, x, prediction)
     plt.show()
 
