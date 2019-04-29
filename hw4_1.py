@@ -2,6 +2,7 @@
 """Logistic regression."""
 from argparse import ArgumentParser
 import numpy as np
+import matplotlib.pyplot as plt
 import hw3_1a
 
 
@@ -59,13 +60,28 @@ def generate_data(n, mean_x, var_x, mean_y, var_y):
     return np.vstack((x, y)).T
 
 
+def plot(n_plot, title, position, x, y):
+    """Plot subplot with specific title and position."""
+    ax = plt.subplot(1, n_plot, position)
+    ax.set_title(title)
+    ax.plot(x[y == 0][:, 0], x[y == 0][:, 1], 'ro')
+    ax.plot(x[y == 1][:, 0], x[y == 1][:, 1], 'bo')
+    return ax
+
+
 def perform_lg(methods, x, y):
     """Perform logistic regression with different methods."""
+    n_plot = len(methods) + 1
+    plt.figure()
+    plot(n_plot, 'Groud truth', 1, x, y)
+    method_count = 2
     for method_name, method in methods.items():
         method.fit(x, y)
         prediction = method.predict(x)
         print(f'{method_name}:\n')
         print(f'w:\n{method.coef}')
+        plot(n_plot, method_name, method_count, x, prediction)
+    plt.show()
 
 
 def main():
