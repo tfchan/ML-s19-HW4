@@ -19,9 +19,25 @@ class LogisticRegression:
         self._method = method
         self._coef = None
 
+    @staticmethod
+    def _preprocess(x):
+        """Preprocess x."""
+        return np.hstack((x, np.ones((x.shape[0], 1))))
+
     def fit(self, x, y):
         """Fit incoming data using chosen method."""
-        pass
+        x = self._preprocess(x)
+        self._coef = np.random.rand(x.shape[1])
+        getattr(self, self.methods.get(self._method))(x, y)
+
+    def _fit_gradient(self, x, y):
+        """Fit incoming data using gradient descent."""
+        converge = False
+        while not converge:
+            logistic = 1 / (1 + np.exp(-np.dot(x, self._coef)))
+            step = x.T @ (y - logistic)
+            self._coef = self._coef + step
+            converge = (np.absolute(step) < 0.0001).all()
 
 
 def generate_data(n, mean_x, var_x, mean_y, var_y):
@@ -53,6 +69,7 @@ def main():
 
     # Train model
     gradient_lg = LogisticRegression(method='gradient')
+    gradient_lg.fit(x, y)
 
 
 if __name__ == '__main__':
