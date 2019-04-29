@@ -1,0 +1,8 @@
+# Folder of input data
+data/
+
+# VSCode configurations
+.vscode/
+
+# Bytecode complied files
+__pycache__/
