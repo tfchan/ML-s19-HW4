@@ -5,6 +5,25 @@ import numpy as np
 import hw3_1a
 
 
+class LogisticRegression:
+    """Class for doing logistic regression."""
+
+    methods = {'gradient': '_fit_gradient', 'newtons': '_fit_newtons'}
+
+    def __init__(self, method='gradient'):
+        """Initialize with specific method."""
+        if method not in self.methods.keys():
+            msg = (f'No {method} method, '
+                   + f'choose from {list(self.methods.keys())}')
+            raise Exception(msg)
+        self._method = method
+        self._coef = None
+
+    def fit(self, x, y):
+        """Fit incoming data using chosen method."""
+        pass
+
+
 def generate_data(n, mean_x, var_x, mean_y, var_y):
     """Generate n (x, y) data points with corresponding mean and variance."""
     x = hw3_1a.normal(mean_x, var_x, n)
@@ -25,8 +44,15 @@ def main():
     args = parser.parse_args()
 
     # Generate data points
-    d1 = generate_data(args.n, *args.mean_var_pairs[:4])
-    d2 = generate_data(args.n, *args.mean_var_pairs[-4:])
+    x1 = generate_data(args.n, *args.mean_var_pairs[:4])
+    y1 = np.zeros((args.n))
+    x2 = generate_data(args.n, *args.mean_var_pairs[-4:])
+    y2 = np.ones((args.n))
+    x = np.concatenate((x1, x2))
+    y = np.concatenate((y1, y2))
+
+    # Train model
+    gradient_lg = LogisticRegression(method='gradient')
 
 
 if __name__ == '__main__':
