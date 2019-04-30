@@ -11,13 +11,14 @@ class LogisticRegression:
 
     methods = {'gradient': '_fit_gradient', 'newtons': '_fit_newtons'}
 
-    def __init__(self, method='gradient'):
+    def __init__(self, method='gradient', lr=0.01):
         """Initialize with specific method."""
         if method not in self.methods.keys():
             msg = (f'No {method} method, '
                    + f'choose from {list(self.methods.keys())}')
             raise Exception(msg)
         self._method = method
+        self._lr = lr
         self._coef = None
 
     @staticmethod
@@ -34,20 +35,18 @@ class LogisticRegression:
     def _fit_gradient(self, x, y):
         """Fit incoming data using gradient descent."""
         converge = False
-        lr = 0.01
         prev_momentum = 0
         while not converge:
             probability = 1 / (1 + np.exp(-np.dot(x, self._coef)))
             gradient = x.T @ (y - probability)
             momentum = 0.9 * prev_momentum + gradient
             prev_momentum = momentum
-            self._coef = self._coef + lr * momentum
+            self._coef = self._coef + self._lr * momentum
             converge = (np.absolute(gradient) < 0.0001).all()
 
     def _fit_newtons(self, x, y):
         """Fit incoming data using newton's method."""
         converge = False
-        lr = 0.01
         while not converge:
             e_wx = np.exp(-np.dot(x, self._coef))
             probability = 1 / (1 + e_wx)
@@ -57,7 +56,7 @@ class LogisticRegression:
             hessian = x.T @ d @ x
             hessian_inv = np.linalg.inv(hessian)
             step = hessian_inv @ gradient
-            self._coef = self._coef + lr * step
+            self._coef = self._coef + self._lr * step
             converge = (np.absolute(step) < 0.0001).all()
 
     def predict(self, x):
