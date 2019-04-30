@@ -35,10 +35,10 @@ class LogisticRegression:
         """Fit incoming data using gradient descent."""
         converge = False
         while not converge:
-            logistic = 1 / (1 + np.exp(-np.dot(x, self._coef)))
-            step = x.T @ (y - logistic)
-            self._coef = self._coef + step
-            converge = (np.absolute(step) < 0.0001).all()
+            probability = 1 / (1 + np.exp(-np.dot(x, self._coef)))
+            gradient = x.T @ (y - probability)
+            self._coef = self._coef + gradient
+            converge = (np.absolute(gradient) < 0.0001).all()
 
     def predict(self, x):
         """Predict target using learnt coefficients."""
