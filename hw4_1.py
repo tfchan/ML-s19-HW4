@@ -44,6 +44,22 @@ class LogisticRegression:
             self._coef = self._coef + lr * momentum
             converge = (np.absolute(gradient) < 0.0001).all()
 
+    def _fit_newtons(self, x, y):
+        """Fit incoming data using newton's method."""
+        converge = False
+        lr = 0.01
+        while not converge:
+            e_wx = np.exp(-np.dot(x, self._coef))
+            probability = 1 / (1 + e_wx)
+            gradient = x.T @ (y - probability)
+            elements = e_wx * (probability ** 2)
+            d = np.diag(elements)
+            hessian = x.T @ d @ x
+            hessian_inv = np.linalg.inv(hessian)
+            step = hessian_inv @ gradient
+            self._coef = self._coef + lr * step
+            converge = (np.absolute(step) < 0.0001).all()
+
     def predict(self, x):
         """Predict target using learnt coefficients."""
         x = self._preprocess(x)
@@ -104,6 +120,7 @@ def perform_lg(methods, x, y):
               tn / (tn + fp))
         print('\n------------------------------------------------------------')
         plot(n_plot, method_name, method_count, x, prediction)
+        method_count += 1
     plt.show()
 
 
@@ -128,7 +145,8 @@ def main():
     y = np.concatenate((y1, y2))
 
     # Train model
-    methods = {'Gradient descent': LogisticRegression(method='gradient')}
+    methods = {'Gradient descent': LogisticRegression(method='gradient'),
+               "Newton's method": LogisticRegression(method='newtons')}
     perform_lg(methods, x, y)
 
 
