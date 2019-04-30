@@ -26,6 +26,11 @@ class LogisticRegression:
         """Preprocess x."""
         return np.hstack((x, np.ones((x.shape[0], 1))))
 
+    @staticmethod
+    def sigmoid(x):
+        """Return sigmoid of x."""
+        return 1 / (1 + np.exp(-x))
+
     def fit(self, x, y):
         """Fit incoming data using chosen method."""
         x = self._preprocess(x)
@@ -33,11 +38,11 @@ class LogisticRegression:
         getattr(self, self.methods.get(self._method))(x, y)
 
     def _fit_gradient(self, x, y):
-        """Fit incoming data using gradient descent."""
+        """Fit incoming data using gradient descent with momentum optimizer."""
         converge = False
         prev_momentum = 0
         while not converge:
-            probability = 1 / (1 + np.exp(-np.dot(x, self._coef)))
+            probability = self.sigmoid(np.dot(x, self._coef))
             gradient = x.T @ (y - probability)
             momentum = 0.9 * prev_momentum + gradient
             prev_momentum = momentum
@@ -51,8 +56,8 @@ class LogisticRegression:
             e_wx = np.exp(-np.dot(x, self._coef))
             probability = 1 / (1 + e_wx)
             gradient = x.T @ (y - probability)
-            elements = e_wx * (probability ** 2)
-            d = np.diag(elements)
+            d_elements = e_wx * (probability ** 2)
+            d = np.diag(d_elements)
             hessian = x.T @ d @ x
             hessian_inv = np.linalg.inv(hessian)
             step = hessian_inv @ gradient
@@ -62,7 +67,7 @@ class LogisticRegression:
     def predict(self, x):
         """Predict target using learnt coefficients."""
         x = self._preprocess(x)
-        y = 1 / (1 + np.exp(-np.dot(x, self._coef)))
+        y = self.sigmoid(np.dot(x, self._coef))
         y = (y > 0.5).astype(int)
         return y
 
@@ -145,7 +150,7 @@ def main():
 
     # Train model
     methods = {'Gradient descent': LogisticRegression(method='gradient'),
-               "Newton's method": LogisticRegression(method='newtons')}
+               "Newton's method": LogisticRegression(method='newtons', lr=0.1)}
     perform_lg(methods, x, y)
 
 
