@@ -34,10 +34,14 @@ class LogisticRegression:
     def _fit_gradient(self, x, y):
         """Fit incoming data using gradient descent."""
         converge = False
+        lr = 0.01
+        prev_momentum = 0
         while not converge:
             probability = 1 / (1 + np.exp(-np.dot(x, self._coef)))
             gradient = x.T @ (y - probability)
-            self._coef = self._coef + gradient
+            momentum = 0.9 * prev_momentum + gradient
+            prev_momentum = momentum
+            self._coef = self._coef + lr * momentum
             converge = (np.absolute(gradient) < 0.0001).all()
 
     def predict(self, x):
