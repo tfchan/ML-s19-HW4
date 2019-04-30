@@ -66,10 +66,10 @@ def generate_data(n, mean_x, var_x, mean_y, var_y):
 
 def calc_confusion_mat(target, prediction):
     """Calculate confusion matrix, return tp, tn, fp, fn."""
-    tp = ((target == 1) & (target == prediction)).sum()
-    tn = ((target == 0) & (target == prediction)).sum()
-    fp = ((target == 0) & (target != prediction)).sum()
-    fn = ((target == 1) & (target != prediction)).sum()
+    tp = ((target == 1) & (prediction == 1)).sum()
+    tn = ((target == 0) & (prediction == 0)).sum()
+    fp = ((target == 0) & (prediction == 1)).sum()
+    fn = ((target == 1) & (prediction == 0)).sum()
     return tp, tn, fp, fn
 
 
