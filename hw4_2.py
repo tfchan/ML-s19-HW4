@@ -29,6 +29,7 @@ def mnist_data(path):
 
 def imgs2features(imgs):
     """Convert array of images to array of features."""
+    imgs = (imgs >= 128).astype(int)
     return imgs.reshape((imgs.shape[0], imgs.shape[1] * imgs.shape[2]))
 
 
