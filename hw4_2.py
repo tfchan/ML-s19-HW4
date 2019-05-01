@@ -27,6 +27,11 @@ def mnist_data(path):
     return data
 
 
+def imgs2features(imgs):
+    """Convert array of images to array of features."""
+    return imgs.reshape((imgs.shape[0], imgs.shape[1] * imgs.shape[2]))
+
+
 def main():
     """Do main task."""
     # Parse arguments
@@ -48,6 +53,11 @@ def main():
                         help='Path to MNIST testing label data,\
                         default data/t10k-labels.idx1-ubyte')
     args = parser.parse_args()
+
+    tr_x = imgs2features(args.tr_image)
+    ts_x = imgs2features(args.ts_image)
+    tr_y = args.tr_label
+    ts_y = args.ts_label
 
 
 if __name__ == '__main__':
