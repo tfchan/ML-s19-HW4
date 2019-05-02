@@ -4,6 +4,7 @@ import argparse
 import os
 import struct
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def mnist_data(path):
@@ -33,6 +34,50 @@ def imgs2features(imgs):
     return imgs.reshape((imgs.shape[0], imgs.shape[1] * imgs.shape[2]))
 
 
+def log_(x):
+    """Do log depends on some special condition."""
+    return np.log(np.where(x > 1e-50, x, 1e-50))
+
+
+def em_algorithm(x, n_cluster=2):
+    """Perfrom EM on data x with n_cluster."""
+    # Initialize parameters
+    n_sample = x.shape[0]
+    n_feature = x.shape[1]
+    cluster_proba = np.random.random((n_cluster))
+    cluster_proba /= cluster_proba.sum(axis=0)
+    black_proba = np.random.random((n_cluster, n_feature))
+
+    converge = False
+    iter = 0
+    while not converge:
+        print(f'Iteration {iter}...\r', end='')
+        # E step
+        w = (np.dot(x, log_(black_proba.T))
+             + np.dot(1 - x, log_(1 - black_proba.T))
+             + log_(cluster_proba))
+        w = w - w.max(axis=0)
+        w = np.exp(w)
+        w = w / w.sum(axis=0)
+
+        # M step
+        new_cluster_proba = w.sum(axis=0) / n_sample
+        new_black_proba = ((w.T @ x) / w.sum(axis=0)[:, None])
+
+        # Determine convergence
+        converge = ((np.abs(new_cluster_proba - cluster_proba) < 1e-10).all()
+                    and (np.abs(new_black_proba - black_proba) < 1e-10).all())
+        cluster_proba = new_cluster_proba
+        black_proba = new_black_proba
+        iter += 1
+
+    plt.figure()
+    for c in range(n_cluster):
+        plt.subplot(2, 5, c + 1)
+        plt.imshow((black_proba[c] > 0.5).reshape((28, 28)))
+    plt.show()
+
+
 def main():
     """Do main task."""
     # Parse arguments
@@ -55,10 +100,14 @@ def main():
                         default data/t10k-labels.idx1-ubyte')
     args = parser.parse_args()
 
+    # Convert data
     tr_x = imgs2features(args.tr_image)
     ts_x = imgs2features(args.ts_image)
     tr_y = args.tr_label
     ts_y = args.ts_label
+
+    # Perform EM
+    em_algorithm(tr_x, n_cluster=10)
 
 
 if __name__ == '__main__':
